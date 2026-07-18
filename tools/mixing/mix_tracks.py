@@ -35,8 +35,10 @@ except ImportError:
 
 try:
     import numba
+    HAS_NUMBA = True
 except ImportError:
-    numba = None
+    numba = None  # type: ignore[assignment]
+    HAS_NUMBA = False
 
 # Ensure project root is on sys.path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -406,7 +408,9 @@ def _envelope_follower_python(abs_signal: Any, attack_coeff: float,
     return envelope
 
 
-if numba is not None:
+_envelope_follower: Callable[[Any, float, float], Any]
+
+if HAS_NUMBA:
     @numba.njit(cache=True)
     def _envelope_follower_jit(abs_signal: Any, attack_coeff: float,
                                release_coeff: float) -> Any:
